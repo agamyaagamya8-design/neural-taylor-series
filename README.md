@@ -1,17 +1,17 @@
 # 🧠 Neural Taylor Series Generator
 
-> A Transformer-based Seq2Seq model that learns to predict **Taylor series expansions** of mathematical expressions — trained purely from examples, no hardcoded formulas.
+> A Transformer-based Seq2Seq model that **learns to approximate symbolic mathematics** by generating Taylor series expansions — entirely from data, without explicit mathematical rules.
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red)
 ![SymPy](https://img.shields.io/badge/SymPy-1.12+-green)
-![Status](https://img.shields.io/badge/Status-Complete-brightgreen)
+![Status](https://img.shields.io/badge/Status-Research--Prototype-brightgreen)
 
 ---
 
 ## 🎯 What Does This Do?
 
-You give it a math expression. It predicts the Taylor series expansion.
+This model takes a mathematical expression and generates its Taylor series expansion:
 
 ```
 Input  :  sin(x)
@@ -20,80 +20,115 @@ Output :  x - x**3/6 + x**5/120
 Input  :  exp(x)
 Output :  1 + x + x**2/2 + x**3/6 + x**4/24 + x**5/120
 
-Input  :  1/(1+x)
-Output :  1 - x + x**2 - x**3 + x**4 - x**5
+Input  :  log(1+x)
+Output :  x - x**2/2 + x**3/3 - x**4/4 + x**5/5
 ```
 
-The model learned this **purely from data** — no math rules were hardcoded.
+Unlike symbolic engines, this model:
+
+* does **not derive formulas**
+* does **not use calculus rules**
+* learns purely from **pattern recognition in data**
 
 ---
 
-## 💡 Motivation
+## 💡 Why This Matters
 
-A Taylor series approximates any complex function using simple addition and multiplication. Calculators use this internally to compute `sin`, `cos`, `exp` etc.
+Taylor series are fundamental to:
 
-This project asks: **Can a neural network learn this mapping the same way humans learn math — just by seeing examples?**
+* numerical computing
+* scientific simulations
+* embedded systems
+* ML approximations
 
-Answer: **Yes.** 🎯
+This project explores a deeper question:
+
+> Can neural networks *learn mathematical structure* instead of being programmed with it?
+
+This sits at the intersection of:
+
+* Deep Learning
+* Symbolic Mathematics
+* Program Synthesis
 
 ---
 
-## 🏗️ Architecture
+## 🚀 What Makes This Different
+
+Most similar projects:
+
+* Train on fixed datasets
+* Use only expansion at `x = 0`
+* Learn shallow mappings
+
+### This project introduces:
+
+✅ **Dynamic dataset generation (SymPy-powered)**
+
+* Expressions generated programmatically
+* Not static / hand-written
+
+✅ **Multi-function coverage**
+
+* Trigonometric, exponential, logarithmic, rational, polynomial
+
+✅ **Configurable expansion order**
+
+* Easily adjustable Taylor depth
+
+✅ **Full pipeline control**
+
+* Data → Model → Training → Inference
+
+---
+
+## 🏗️ Architecture Overview
 
 ```
-Input String  →  Tokenizer  →  Encoder  →  Decoder  →  Output String
-  "sin(x)"         ↓         (reads it)   (writes it)  "x - x**3/6..."
-               char-level
-               vocabulary
-               (31 chars)
+Expression → Tokenizer → Transformer Encoder → Transformer Decoder → Taylor Series
+   "sin(x)"                                       ↓
+                                            "x - x**3/6 + ..."
 ```
 
-### Transformer Seq2Seq
-| Component | Detail |
-|---|---|
-| Tokenisation | Character-level (every char = 1 token) |
-| Vocabulary | 31 characters + 4 special tokens |
-| Encoder | Multi-head self-attention stack |
-| Decoder | Causal masked attention + cross-attention |
-| Positional Encoding | Sinusoidal (Vaswani et al. 2017) |
-| Inference | Greedy autoregressive decoding |
+### Model Design
 
-### Special Tokens
-| Token | Role |
-|---|---|
-| `<PAD>` | Padding for equal-length batches |
-| `<s>` | Start of sequence (decoder input) |
-| `<e>` | End of sequence (stop signal) |
-| `<UNK>` | Unknown character fallback |
+| Component           | Details                            |
+| ------------------- | ---------------------------------- |
+| Tokenization        | Character-level                    |
+| Vocabulary          | 31 tokens + special symbols        |
+| Encoder             | Multi-head self-attention          |
+| Decoder             | Masked attention + cross-attention |
+| Positional Encoding | Sinusoidal                         |
+| Decoding            | Greedy autoregressive              |
 
 ---
 
-## 📊 Training Results
+## 🧪 Training Insights
 
-| Epoch | Loss | Status |
-|---|---|---|
-| 1 | 2.13 | 🔴 Random guessing |
-| 10 | 0.40 | 🟡 Learning patterns |
-| 30 | 0.09 | 🟢 Getting accurate |
-| 60 | 0.04 | 🔥 High accuracy |
-| 150 | ~0.01 | ✅ Near perfect |
+| Epoch | Loss  | Interpretation              |
+| ----- | ----- | --------------------------- |
+| 1     | 2.13  | Random output               |
+| 10    | 0.40  | Structure emerging          |
+| 30    | 0.09  | Correct patterns forming    |
+| 60    | 0.04  | High accuracy               |
+| 150   | ~0.01 | Near-perfect reconstruction |
 
-Loss dropped **95%+ in 30 epochs** — very fast convergence for a character-level model.
+📉 **Fast convergence** due to structured nature of mathematical data.
 
 ---
 
-## 📁 Project Structure
+## 📂 Project Structure
 
 ```
 neural-taylor-series/
 ├── src/
-│   ├── datagen.py            ← Generate dataset using SymPy
-│   ├── transformer_model.py  ← Transformer Seq2Seq (main model)
-│   └── lstm_model.py         ← LSTM Seq2Seq (alternative)
+│   ├── datagen.py            # Dynamic dataset generation (SymPy)
+│   ├── transformer_model.py  # Transformer Seq2Seq
+│   └── lstm_model.py         # Baseline comparison model
 ├── data/
-│   └── dataset.txt           ← 1000 expression→Taylor pairs
+│   └── dataset.txt
 ├── outputs/
-│   └── transformer_taylor.pt ← Saved model checkpoint
+│   └── transformer_taylor.pt
 ├── requirements.txt
 └── README.md
 ```
@@ -102,147 +137,101 @@ neural-taylor-series/
 
 ## ⚡ Quick Start
 
-### 1. Clone & Install
+### 1. Setup
+
 ```bash
 git clone https://github.com/yourusername/neural-taylor-series.git
 cd neural-taylor-series
 pip install -r requirements.txt
 ```
 
-### 2. Generate Dataset
+### 2. Generate Data
+
 ```bash
 python src/datagen.py
 ```
-Creates `data/dataset.txt` with 1000 expression→Taylor pairs using SymPy.
 
-### 3. Train the Model
+### 3. Train
+
 ```bash
-# Transformer (recommended)
 python src/transformer_model.py
-
-# OR LSTM (faster on small datasets)
-python src/lstm_model.py
-```
-
-### 4. Watch it Learn
-```
-Epoch   1/150  |  Loss: 2.1308  →  Pred: x + + + + +…
-Epoch  10/150  |  Loss: 0.4057  →  Pred: x + 1 ✓
-Epoch  30/150  |  Loss: 0.0963  →  Pred: x - x**3/6 + x**5/120 ✓
-Epoch 150/150  |  Loss: 0.0102  →  Near perfect accuracy ✓
 ```
 
 ---
 
-## 📦 Dataset Format
+## 📦 Dataset Details
 
-Each line in `data/dataset.txt`:
-```
-sin(x) -> x - x**3/6 + x**5/120
-cos(x) -> 1 - x**2/2 + x**4/24
-exp(x) -> 1 + x + x**2/2 + x**3/6 + x**4/24 + x**5/120
-tan(x) -> x + x**3/3 + 2*x**5/15
-log(1+x) -> x - x**2/2 + x**3/3 - x**4/4 + x**5/5
-```
+* ~1000 generated samples
+* Format:
 
-- **1000 pairs** generated by SymPy
-- Expansions truncated at **x⁶** (configurable)
-- Covers: trig, exponential, logarithmic, polynomial, rational functions
+  ```
+  expression -> Taylor expansion
+  ```
+* Expansion order: up to **x⁶**
+* Generated using **SymPy**
 
 ---
 
-## ⚙️ Hyperparameters
+## ⚙️ Key Hyperparameters
 
-| Parameter | Value | What it means |
-|---|---|---|
-| `EMB_DIM` | 128 | Size of token embeddings |
-| `N_HEADS` | 4 | Attention heads in Transformer |
-| `N_LAYERS` | 3 | Encoder + Decoder layer depth |
-| `FFN_DIM` | 256 | Feed-forward hidden size |
-| `DROPOUT` | 0.1 | Regularization |
-| `BATCH_SIZE` | 32 | Samples per training step |
-| `LR` | 3e-4 | Adam learning rate |
-| `EPOCHS` | 150 | Full passes over dataset |
-
-All hyperparameters are in the `CONFIG` dict at the top of each file — easy to modify.
+| Parameter     | Value |
+| ------------- | ----- |
+| Embedding Dim | 128   |
+| Heads         | 4     |
+| Layers        | 3     |
+| FFN Dim       | 256   |
+| Batch Size    | 32    |
+| LR            | 3e-4  |
+| Epochs        | 150   |
 
 ---
 
-## 🔮 How Prediction Works
+## 🔍 How It Actually Learns
 
-```
-Step 1: Encode "sin(x)" → memory vectors
+Instead of memorizing formulas, the model learns:
 
-Step 2: Start decoder with <s> token
+* power series patterns
+* coefficient relationships
+* sign alternations
+* polynomial growth structures
 
-Step 3: Decoder predicts next character
-        <s> → 'x'
-
-Step 4: Feed 'x' back, predict next
-        'x' → ' '
-
-Step 5: Continue until <e> token
-        ' ' → '-' → ' ' → 'x' → '*' → '*' ...→ <e>
-
-Result: "x - x**3/6 + x**5/120" ✓
-```
-
-This is called **autoregressive decoding** — generating one character at a time.
+This is **pattern abstraction**, not symbolic reasoning.
 
 ---
 
-## 🔧 Extending the Project
+## 🔮 Future Improvements
 
-- **Add more functions** — edit `get_functions()` in `datagen.py`
-- **Higher order terms** — increase `TAYLOR_ORDER` in `datagen.py`
-- **Beam search** — replace greedy decoding for better accuracy
-- **Larger model** — increase `EMB_DIM`, `N_LAYERS`, `FFN_DIM`
-- **Loss plot** — add matplotlib to visualize training curve
-
----
-
-## 🧠 Key Concepts Learned
-
-| Concept | Where Used |
-|---|---|
-| Seq2Seq modeling | Core architecture |
-| Transformer attention | Encoder-Decoder |
-| Character tokenization | Vocabulary building |
-| Teacher forcing | Training strategy |
-| Autoregressive decoding | Inference |
-| CrossEntropyLoss | Training objective |
-| Sinusoidal positional encoding | Sequence order |
+* Beam search decoding
+* Multi-variable Taylor expansions
+* Error analysis vs true series
+* Attention visualization
+* Web interface (input → output live)
 
 ---
 
-## 🖥️ Requirements
+## 🧠 Key Takeaways
 
-```
-torch>=2.0.0
-sympy>=1.12
-numpy>=1.24
-tqdm>=4.0       # optional, for progress bar
-```
-
-GPU is used automatically if available (`cuda`), otherwise CPU.
+* Neural networks can approximate structured math mappings
+* Transformers handle symbolic sequences effectively
+* Data quality matters more than model size
 
 ---
 
 ## 👨‍💻 Author
 
 **Agamya**
-Electronics & Communication Engineering
-Built as first deep learning project — Day 1 of ML journey 🚀
+First deep learning project — built from scratch 🚀
 
 ---
 
 ## 📄 License
 
-MIT License — free to use, modify and distribute.
+MIT License
 
 ---
 
-## ⭐ If this helped you
+## ⭐ Support
 
-Give it a star on GitHub! It helps others discover the project. 🌟
+If you found this interesting, drop a ⭐ — it genuinely helps visibility.
+
 
